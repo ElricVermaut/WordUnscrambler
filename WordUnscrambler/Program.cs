@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+
 
 namespace WordUnscrambler
 {
@@ -10,41 +12,52 @@ namespace WordUnscrambler
     {
         private static readonly FileReader _fileReader = new FileReader();
         private static readonly WordMatcher _wordMatcher = new WordMatcher();
+        private static bool retry;
 
         static void Main(string[] args)
         {
-            try
+
+            retry = true;
+            while (retry == true)
             {
-                Console.WriteLine("Enter scrambled word(s) manually or as a file: F - file / M - manual");
-
-                String option = Console.ReadLine() ?? throw new Exception("String is empty");
-
-                switch (option.ToUpper())
+                try
                 {
-                    case "F":
-                        Console.WriteLine("Enter full path including the file name: ");
-                        ExecuteScrambledWordsInFileScenario();
-                        break;
-                    case "M":
-                        Console.WriteLine("Enter word(s) manually (separated by commas if multiple): ");
-                        ExecuteScrambledWordsManualEntryScenario();
-                        break;
-                    default:
-                        Console.WriteLine("The entered option was not recognized.");
-                        break;
+                    Console.WriteLine(Constants.question);
+
+
+                    var option = Console.ReadLine() ?? throw new Exception(Constants.option);
+
+                    switch (option.ToUpper())
+                    {
+                        case "F":
+                            Console.WriteLine(Constants.fileAsk);
+                            ExecuteScrambledWordsInFileScenario();
+                            break;
+                        case "M":
+                            Console.WriteLine(Constants.manualAsk);
+                            ExecuteScrambledWordsManualEntryScenario();
+                            ManualWordRetry();
+                            break;
+                        default:
+                            Console.WriteLine(Constants.errorAsk);
+                            break;
+                    }
+
+
+
                 }
+                catch (FileNotFoundException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(Constants.error + ex.Message);
 
-                Console.ReadLine();
-
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("The program will be terminated." + ex.Message);
-
+                }
+                Retry();
             }
         }
-
         private static void ExecuteScrambledWordsInFileScenario()
         {
             var filename = Console.ReadLine();
@@ -54,6 +67,10 @@ namespace WordUnscrambler
 
         private static void ExecuteScrambledWordsManualEntryScenario()
         {
+            string scrambledWords = Console.ReadLine();
+            string noSpaceScrambledWords = scrambledWords.Replace(" ", "");
+            string[] arrayedScrambledWords = noSpaceScrambledWords.Split(',');
+            DisplayMatchedUnscrambledWords(arrayedScrambledWords);
         }
 
         private static void DisplayMatchedUnscrambledWords(string[] scrambledWords)
@@ -63,6 +80,34 @@ namespace WordUnscrambler
 
             //call a word matcher method to get a list of structs of matched words.
             List<MatchedWord> matchedWords = _wordMatcher.Match(scrambledWords, wordList);
+        }
+        private static void Retry()
+        {
+            Console.WriteLine(Constants.retry);
+            string ask = Console.ReadLine();
+            switch (ask.ToUpper())
+            {
+                case "Y":
+                    retry = true;
+                    break;
+                case "N":
+                    retry = false;
+                    break;
+                default:
+                    Retry();
+                    break;
+            }
+        }
+        private static void ManualWordRetry()
+        {
+            Console.WriteLine(Constants.retryOther);
+            string ask = Console.ReadLine().ToUpper();
+            if (ask == "Y")
+            {
+                Console.WriteLine(Constants.manualAsk);
+                ExecuteScrambledWordsManualEntryScenario();
+                ManualWordRetry();
+            }
         }
     }
 }

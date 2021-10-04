@@ -11,17 +11,24 @@ namespace WordUnscrambler
         public List<MatchedWord> Match(string[] scrambledWords, string[] wordList)
         {
             List<MatchedWord> matchedWords = new List<MatchedWord>();
-
+         
             foreach (var scrambledWord in scrambledWords)
             {
                 foreach (var word in wordList)
                 {
-                    //scrambledWord already matches word
-                    if (scrambledWord.Equals(word, StringComparison.OrdinalIgnoreCase)) {
+                    
+                    char[] scrambledWordArray = scrambledWord.ToArray();
+                    char[] wordArray = word.ToArray();
+
+                    Array.Sort(wordArray);
+                    Array.Sort(scrambledWordArray);
+
+                    string sortedScrambledWord = new string(scrambledWordArray);
+                    string sortedWord = new string(wordArray);
+
+                    if (sortedScrambledWord.Equals(sortedWord, StringComparison.OrdinalIgnoreCase)) {
                         matchedWords.Add(BuildMatchedWord(scrambledWord, word));
-                    }
-                    else
-                    {
+                        Console.WriteLine("MATCH FOUND FOR {0}: {1}", scrambledWord, word);
                     }
                 }
             }
@@ -38,7 +45,8 @@ namespace WordUnscrambler
             }
 
             return matchedWords;
-        } 
+        }
+        
     }
 
 }
