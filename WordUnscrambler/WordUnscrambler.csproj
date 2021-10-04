@@ -43,6 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
+    <Compile Include="Constants.cs" />
+=======
+>>>>>>> 19f60c15a6475b003b2225e54713eec60f364a38
     <Compile Include="FileReader.cs" />
     <Compile Include="MatchedWord.cs" />
     <Compile Include="Program.cs" />
